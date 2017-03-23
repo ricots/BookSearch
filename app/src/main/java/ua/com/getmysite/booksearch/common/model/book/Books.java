@@ -12,7 +12,7 @@ public class Books {
     @SerializedName("totalItems")
     private long totalItems;
 
-    @SerializedName("bookItems")
+    @SerializedName("items")
     private List<BookItem> bookItems = null;
 
     public String getKind() {

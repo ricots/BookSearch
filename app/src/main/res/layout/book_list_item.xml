@@ -5,11 +5,21 @@
     android:layout_height="match_parent"
     android:layout_margin="16dp">
 
-    <com.facebook.drawee.view.SimpleDraweeView
+   <!-- <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/sdvImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        fresco:placeholderImage="@drawable/placeholder"/>
+        fresco:placeholderImage="@drawable/placeholder"
+        fresco:actualImageScaleType="fitXY"/>-->
+
+    <ua.com.getmysite.booksearch.features.draweeview.WrapContentDraweeView
+        android:id="@+id/sdvImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        fresco:placeholderImage="@drawable/placeholder"
+        fresco:actualImageScaleType="fitXY"
+        />
+
     <TextView
         android:id="@+id/tvNameBook"
         android:layout_width="match_parent"

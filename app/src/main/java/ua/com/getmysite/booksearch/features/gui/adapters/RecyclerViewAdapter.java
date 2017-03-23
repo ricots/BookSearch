@@ -48,4 +48,16 @@ public class RecyclerViewAdapter
     public int getItemCount() {
         return this.bookItemList.size();
     }
+
+    // Clean all elements of the recycler
+    public void clear() {
+        bookItemList.clear();
+        notifyDataSetChanged();
+    }
+
+    // Add a list of items
+    public void addAll(List<BookItem> list) {
+        bookItemList.addAll(list);
+        notifyDataSetChanged();
+    }
 }
