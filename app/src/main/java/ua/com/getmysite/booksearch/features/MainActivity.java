@@ -7,6 +7,7 @@ import ua.com.getmysite.booksearch.R;
 
 public class MainActivity extends AppCompatActivity {
 
+    //Start
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
