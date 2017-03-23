@@ -35,7 +35,6 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.3.0'
 
-    //Fresco
-    compile 'com.facebook.fresco:fresco:1.2.0'
-    compile 'com.facebook.fresco:animated-base-test:1.2.0'
+    //Picasso
+    compile 'it.sephiroth.android.library.picasso:picasso:2.5.2.4b'
 }
