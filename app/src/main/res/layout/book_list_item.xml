@@ -2,8 +2,7 @@
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_margin="16dp">
+    android:layout_height="match_parent">
 
    <!-- <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/sdvImage"
@@ -14,7 +13,7 @@
 
     <ua.com.getmysite.booksearch.features.draweeview.WrapContentDraweeView
         android:id="@+id/sdvImage"
-        android:layout_width="match_parent"
+        android:layout_width="145dp"
         android:layout_height="wrap_content"
         fresco:placeholderImage="@drawable/placeholder"
         fresco:actualImageScaleType="fitXY"
