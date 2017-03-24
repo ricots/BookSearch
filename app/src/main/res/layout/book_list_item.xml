@@ -2,27 +2,32 @@
     xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-   <!-- <com.facebook.drawee.view.SimpleDraweeView
-        android:id="@+id/sdvImage"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        fresco:placeholderImage="@drawable/placeholder"
-        fresco:actualImageScaleType="fitXY"/>-->
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    android:paddingTop="16dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    >
 
     <ua.com.getmysite.booksearch.features.draweeview.WrapContentDraweeView
         android:id="@+id/sdvImage"
-        android:layout_width="145dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         fresco:placeholderImage="@drawable/placeholder"
         fresco:actualImageScaleType="fitXY"
-        />
+        fresco:roundedCornerRadius="15dp"
+        fresco:roundBottomLeft="false"
+        fresco:roundBottomRight="false"/>
 
     <TextView
         android:id="@+id/tvNameBook"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:background="@drawable/round"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
+        android:paddingEnd="5dp"
+        />
 
 </LinearLayout>

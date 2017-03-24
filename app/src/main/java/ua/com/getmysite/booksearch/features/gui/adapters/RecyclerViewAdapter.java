@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import java.util.List;
 
@@ -40,7 +41,18 @@ public class RecyclerViewAdapter
 
     @Override
     public void onBindViewHolder(RecyclerViewHolder holder, int position) {
-        holder.sdvImage.setImageURI(bookItemList.get(position).getVolumeInfo().getImageLinks().getSmallThumbnail());
+        try{
+            holder.sdvImage.setImageURI(bookItemList.get(position).getVolumeInfo().getImageLinks().getSmallThumbnail());
+        }catch (NullPointerException e) {
+            try {
+                holder.sdvImage.setImageURI(bookItemList.get(position).getVolumeInfo().getImageLinks().getThumbnail());
+            }catch (NullPointerException ex){
+                //holder.sdvImage.setLayoutParams(new LinearLayout.LayoutParams(128,192));
+                holder.sdvImage.getLayoutParams().height = 256;
+                holder.sdvImage.setImageResource(R.drawable.placeholder);
+            }
+        }
+
         holder.tvNameBook.setText(bookItemList.get(position).getVolumeInfo().getTitle());
     }
 
