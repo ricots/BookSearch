@@ -44,5 +44,5 @@ dependencies {
     //Fresco
     compile 'com.facebook.fresco:fresco:1.2.0'
 
-    //compile 'jp.wasabeef:recyclerview-animators:2.2.6'
+    compile 'jp.wasabeef:recyclerview-animators:1.2.2'
 }

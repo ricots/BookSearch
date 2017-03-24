@@ -20,6 +20,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -57,6 +58,17 @@ public class MainActivity extends AppCompatActivity {
         addSwipeListener();
         recyclerViewInit();
         initRetrofitService();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (searchView != null) {
+            searchView.setQuery(nameAuthor, false);
+            searchView.clearFocus();
+            searchView.onActionViewCollapsed();
+        }
     }
 
     @Override
@@ -107,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 getBooks(nameAuthor,0);
             }
         });
-        // Configure the refreshing colors
+
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
@@ -128,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                 );
 
         recyclerView.setAdapter(rcAdapter);
-        //recyclerView.setItemAnimator(new SlideInUpAnimator());
+        recyclerView.setItemAnimator(new SlideInUpAnimator());
     }
 
     private void initRetrofitService(){
