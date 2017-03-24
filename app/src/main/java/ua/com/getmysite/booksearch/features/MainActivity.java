@@ -9,8 +9,14 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.Menu;
 import android.view.View;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
+import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +33,8 @@ import ua.com.getmysite.booksearch.features.gui.adapters.RecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
+    private RelativeLayout errorRelativeLayout;
+    private TextView errorTextView;
     private SwipeRefreshLayout swipeContainer;
     private StaggeredGridLayoutManager sGridLayoutManager;
     private BookService bookService;
@@ -35,10 +43,16 @@ public class MainActivity extends AppCompatActivity {
     private List<BookItem> bookList = new ArrayList<BookItem>();
     private RecyclerViewAdapter rcAdapter;
 
+    private String nameAuthor = "";
+    private SearchView searchView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        errorRelativeLayout = (RelativeLayout) findViewById(R.id.errorRelativeLayout);
+        errorTextView = (TextView) findViewById(R.id.errorTextView);
 
         addSwipeListener();
         recyclerViewInit();
@@ -49,13 +63,14 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search, menu);
 
-        android.support.v7.widget.SearchView searchView
-                = (android.support.v7.widget.SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                System.out.println("DEBUG: get books "+query+" startwith 0");
+                swipeContainer.setRefreshing(true);
+                nameAuthor = query;
+                rcAdapter.clear();
                 getBooks(query,0);
                 return false;
             }
@@ -72,15 +87,12 @@ public class MainActivity extends AppCompatActivity {
     IOnItemClickListener onItemClickListener = new IOnItemClickListener() {
         @Override
         public void onItemClick(View view, int position) {
-            /*Intent intent = new Intent(getActivity(), PhotoActivity.class);
-
-            intent.putParcelableArrayListExtra("myphotos", photo);
-            intent.putExtra("numberPhotoShow", position);
-
-            startActivity(intent);*/
-
+            String msg = "";
+            if (bookList.get(position).getVolumeInfo().getAuthors() != null)
+                msg = bookList.get(position).getVolumeInfo().getAuthors().toString();
+            msg += bookList.get(position).getVolumeInfo().getTitle();
             Toast.makeText(getApplicationContext(),
-                    "Position = "+position,
+                    msg,
                     Toast.LENGTH_SHORT).show();
         }
     };
@@ -90,8 +102,9 @@ public class MainActivity extends AppCompatActivity {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //TODO Reload data
-                //swipeContainer.setRefreshing(false);
+                searchView.setQuery(nameAuthor,false);
+                rcAdapter.clear();
+                getBooks(nameAuthor,0);
             }
         });
         // Configure the refreshing colors
@@ -99,7 +112,6 @@ public class MainActivity extends AppCompatActivity {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-
     }
 
     private void recyclerViewInit(){
@@ -110,14 +122,13 @@ public class MainActivity extends AppCompatActivity {
                 StaggeredGridLayoutManager.VERTICAL);
         recyclerView.setLayoutManager(sGridLayoutManager);
 
-
-
         rcAdapter = new RecyclerViewAdapter(bookList,
                 MainActivity.this,
                 onItemClickListener
                 );
 
         recyclerView.setAdapter(rcAdapter);
+        //recyclerView.setItemAnimator(new SlideInUpAnimator());
     }
 
     private void initRetrofitService(){
@@ -132,20 +143,40 @@ public class MainActivity extends AppCompatActivity {
 
     private void addBooks(List<BookItem> books){
         rcAdapter.addAll(books);
-        swipeContainer.setRefreshing(false);
     }
 
     Callback<Books> booksCallback = new Callback<Books>(){
         @Override
         public void onResponse(Call<Books> call, Response<Books> response) {
-            if (response.body().getBookItems() != null && response.body().getBookItems().size()>0) {
+
+            if (!response.isSuccessful()) {
+                int responseCode = response.code();
+                if(responseCode == 504) {
+                    errorTextView.setText(getString(R.string.error_load));
+                    errorRelativeLayout.setVisibility(View.VISIBLE);
+                }
+                return;
+            }
+
+            if (response.body() != null &&
+                    response.body().getBookItems() != null
+                    && response.body().getBookItems().size()>0) {
+
                 addBooks(response.body().getBookItems());
             }
+            swipeContainer.setRefreshing(false);
         }
 
         @Override
         public void onFailure(Call<Books> call, Throwable t) {
+            if (!call.isCanceled()){
+                swipeContainer.setRefreshing(false);
 
+                if(t instanceof ConnectException || t instanceof UnknownHostException){
+                    errorTextView.setText(getText(R.string.error_load));
+                    errorRelativeLayout.setVisibility(View.VISIBLE);
+                }
+            }
         }
     };
 }

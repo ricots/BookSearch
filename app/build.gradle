@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
+
     defaultConfig {
         applicationId "ua.com.getmysite.booksearch"
         minSdkVersion 16
@@ -42,4 +43,6 @@ dependencies {
 
     //Fresco
     compile 'com.facebook.fresco:fresco:1.2.0'
+
+    //compile 'jp.wasabeef:recyclerview-animators:2.2.6'
 }
