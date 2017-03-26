@@ -1,6 +1,5 @@
 package ua.com.getmysite.booksearch.features;
 
-import android.content.Intent;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,14 +12,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.wasabeef.recyclerview.animators.SlideInUpAnimator;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -44,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     private List<BookItem> bookList = new ArrayList<BookItem>();
     private RecyclerViewAdapter rcAdapter;
 
+    private boolean needLoading = true;
+    private int pagination = 0;
+    private int pastVisiblesItems, visibleItemCount, totalItemCount;
     private String nameAuthor = "";
     private SearchView searchView;
 
@@ -83,7 +82,8 @@ public class MainActivity extends AppCompatActivity {
                 swipeContainer.setRefreshing(true);
                 nameAuthor = query;
                 rcAdapter.clear();
-                getBooks(query,0);
+                pagination = 0;
+                getBooks(query,pagination);
                 return false;
             }
 
@@ -116,7 +116,8 @@ public class MainActivity extends AppCompatActivity {
             public void onRefresh() {
                 searchView.setQuery(nameAuthor,false);
                 rcAdapter.clear();
-                getBooks(nameAuthor,0);
+                pagination = 0;
+                getBooks(nameAuthor,pagination);
             }
         });
 
@@ -140,7 +141,31 @@ public class MainActivity extends AppCompatActivity {
                 );
 
         recyclerView.setAdapter(rcAdapter);
-        recyclerView.setItemAnimator(new SlideInUpAnimator());
+        //recyclerView.setItemAnimator(new SlideInUpAnimator());
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                if(dy > 0) //check for scroll down
+                {
+                    visibleItemCount = sGridLayoutManager.getChildCount();
+                    totalItemCount = sGridLayoutManager.getItemCount();
+                    int[] firstVisibleItems = null;
+                    firstVisibleItems = sGridLayoutManager.findFirstVisibleItemPositions(firstVisibleItems);
+                    if(firstVisibleItems != null && firstVisibleItems.length > 0) {
+                        pastVisiblesItems = firstVisibleItems[0];
+                    }
+
+                    if (needLoading){
+                        if ((visibleItemCount + pastVisiblesItems) >= totalItemCount) {
+                            needLoading = false;
+                            pagination += 10;
+                            System.out.println("DEBUG: Need load next data from = "+pagination);
+                            getBooks(nameAuthor,pagination);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void initRetrofitService(){
@@ -175,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
                     && response.body().getBookItems().size()>0) {
 
                 addBooks(response.body().getBookItems());
+                needLoading = true;
             }
             swipeContainer.setRefreshing(false);
         }
