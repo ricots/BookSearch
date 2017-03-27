@@ -1,10 +1,13 @@
 package ua.com.getmysite.booksearch.common.model.book;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public class SaleInfo {
+public class SaleInfo implements Parcelable {
 
     @SerializedName("country")
     private String country;
@@ -26,6 +29,38 @@ public class SaleInfo {
 
     @SerializedName("offers")
     private List<Offer> offers = null;
+
+    protected SaleInfo(Parcel in) {
+        country = in.readString();
+        saleability = in.readString();
+        isEbook = in.readByte() != 0;
+        buyLink = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(country);
+        dest.writeString(saleability);
+        dest.writeByte((byte) (isEbook ? 1 : 0));
+        dest.writeString(buyLink);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<SaleInfo> CREATOR = new Creator<SaleInfo>() {
+        @Override
+        public SaleInfo createFromParcel(Parcel in) {
+            return new SaleInfo(in);
+        }
+
+        @Override
+        public SaleInfo[] newArray(int size) {
+            return new SaleInfo[size];
+        }
+    };
 
     public String getCountry() {
         return country;

@@ -1,13 +1,19 @@
 package ua.com.getmysite.booksearch.features;
 
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.os.Parcelable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.Display;
 import android.view.Menu;
+import android.view.Surface;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +36,7 @@ import ua.com.getmysite.booksearch.features.gui.adapters.RecyclerViewAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
+    private RecyclerView recyclerView;
     private RelativeLayout errorRelativeLayout;
     private TextView errorTextView;
     private SwipeRefreshLayout swipeContainer;
@@ -54,9 +61,25 @@ public class MainActivity extends AppCompatActivity {
         errorRelativeLayout = (RelativeLayout) findViewById(R.id.errorRelativeLayout);
         errorTextView = (TextView) findViewById(R.id.errorTextView);
 
+        System.out.println("DEBUG: onCreate");
+
+        if (savedInstanceState != null){
+            bookList = savedInstanceState.getParcelableArrayList("bookList");
+            nameAuthor = savedInstanceState.getString("nameAuthor");
+        }
+
         addSwipeListener();
         recyclerViewInit();
         initRetrofitService();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        System.out.println("DEBUG: Put data");
+        outState.putParcelableArrayList("bookList", (ArrayList<? extends Parcelable>) bookList);
+        outState.putString("nameAuthor", nameAuthor);
     }
 
     @Override
@@ -75,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_search, menu);
 
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setQuery(nameAuthor, false);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -103,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
             if (bookList.get(position).getVolumeInfo().getAuthors() != null)
                 msg = bookList.get(position).getVolumeInfo().getAuthors().toString();
             msg += bookList.get(position).getVolumeInfo().getTitle();
+
             Toast.makeText(getApplicationContext(),
                     msg,
                     Toast.LENGTH_SHORT).show();
@@ -128,11 +153,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void recyclerViewInit(){
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rvItems);
+        recyclerView = (RecyclerView) findViewById(R.id.rvItems);
         recyclerView.setHasFixedSize(true);
 
-        sGridLayoutManager = new StaggeredGridLayoutManager(2,
-                StaggeredGridLayoutManager.VERTICAL);
+        if (isOrientationPortrait()){
+            sGridLayoutManager = new StaggeredGridLayoutManager(2,
+                    StaggeredGridLayoutManager.VERTICAL);
+        } else {
+            sGridLayoutManager = new StaggeredGridLayoutManager(3,
+                    StaggeredGridLayoutManager.VERTICAL);
+        }
+
         recyclerView.setLayoutManager(sGridLayoutManager);
 
         rcAdapter = new RecyclerViewAdapter(bookList,
@@ -217,4 +248,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private boolean isOrientationPortrait(){
+        Display display = ((WindowManager) getSystemService(WINDOW_SERVICE))
+                .getDefaultDisplay();
+
+        int orientation = display.getRotation();
+
+        if (orientation == Surface.ROTATION_90
+                || orientation == Surface.ROTATION_270) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
